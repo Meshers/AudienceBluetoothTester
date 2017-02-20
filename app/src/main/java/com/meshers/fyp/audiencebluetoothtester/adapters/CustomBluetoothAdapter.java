@@ -68,7 +68,7 @@ public class CustomBluetoothAdapter {
         return customBluetoothAdapter.getName();
     }
 
-    private void makeDiscoverable(int timeOut) {
+    public void makeDiscoverable(int timeOut) {
         Class<?> baClass = BluetoothAdapter.class;
         Method[] methods = baClass.getDeclaredMethods();
         Method mSetScanMode = null;

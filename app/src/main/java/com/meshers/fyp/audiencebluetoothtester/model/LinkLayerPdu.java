@@ -36,7 +36,14 @@ public class LinkLayerPdu {
 
     public static boolean isValidPdu(String encoded) {
         try {
-            return isValidPdu(encoded.getBytes("UTF-8"));
+            if(encoded != null){
+                return isValidPdu(encoded.getBytes("UTF-8"));
+            }
+            else{
+                return false;
+
+            }
+
         } catch (UnsupportedEncodingException e) {
             Log.e("LLPDU", "isValid failed", e);
             return false;

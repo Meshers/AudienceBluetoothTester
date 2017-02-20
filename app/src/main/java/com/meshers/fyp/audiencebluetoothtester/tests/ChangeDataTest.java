@@ -1,4 +1,4 @@
-package com.meshers.fyp.audiencebluetoothtester;
+package com.meshers.fyp.audiencebluetoothtester.tests;
 
 import android.os.CountDownTimer;
 import android.widget.Toast;
@@ -21,8 +21,8 @@ public class ChangeDataTest {
     private boolean complete = false;
     private String description;
 
-    public ChangeDataTest(int noOsScans, long interval, BTHelper mBtHelper){
-        this.noOfScans = noOsScans;
+    public ChangeDataTest(int noOfScans, long interval, BTHelper mBtHelper){
+        this.noOfScans = noOfScans;
         this.interval = interval;
         this.mBtHelper = mBtHelper;
     }
@@ -32,14 +32,15 @@ public class ChangeDataTest {
         final Timer timer = new Timer();
 
         TimerTask task = new TimerTask() {
-            private int iterator = 0;
+            private int iterator = 1;
             @Override
             public void run() {
                 // task to run goes here
                 mBtHelper.startSendingData(interval + ":" + iterator);
 
-                if(++iterator == noOfScans){
+                if(++iterator > noOfScans){
                     timer.cancel();
+                    description = "TEST2: SUCCESS - Data sent with an interval of " + interval + ".";
                     complete = true;
                 }
             }
@@ -54,7 +55,18 @@ public class ChangeDataTest {
                 intevalPeriod);
     }
 
-    public boolean isComplete(){
+    public String getResults(){
+
+        if(description != null){
+            return description;
+        }
+        else{
+            return "TEST2: ERROR - Data not sent in " + interval + "interval.";
+        }
+
+    }
+
+    public boolean checkStatus(){
         return complete;
     }
 
