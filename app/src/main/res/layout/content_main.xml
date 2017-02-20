@@ -48,7 +48,7 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/padding"
-            android:background="@color/colorAccent">
+            android:background="@color/dividerColor">
 
             <TextView
                 android:id="@+id/test_one_heading"
@@ -74,7 +74,7 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/padding"
-            android:background="@color/colorAccent">
+            android:background="@color/dividerColor">
 
             <TextView
                 android:id="@+id/test_two_heading"
@@ -100,7 +100,7 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/padding"
-            android:background="@color/colorAccent">
+            android:background="@color/dividerColor">
 
             <TextView
                 android:id="@+id/test_three_heading"
