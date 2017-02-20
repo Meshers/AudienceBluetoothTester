@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
 //                        new ChangeDataTest(5, 90000, mBtHelper)
                 };
 
+                testTwoResults.setText("");
                 for(ChangeDataTest changeDataSet: changeDataTests){
                     Log.e("LOOP", "TEST 2");
                     changeDataSet.executeTest();
