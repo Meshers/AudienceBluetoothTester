@@ -75,9 +75,6 @@ public class BTHelper {
 
         teacherDeviceIds = new HashSet<>();
         teacherDeviceIds.add((byte)1);
-        teacherDeviceIds.add((byte)2);
-        teacherDeviceIds.add((byte)3);
-        teacherDeviceIds.add((byte)4);
     }
 
     public void startDiscovery() {
