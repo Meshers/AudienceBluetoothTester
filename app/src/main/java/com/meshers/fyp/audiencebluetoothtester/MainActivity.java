@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText usnEditText;
 
     //Device specific data
-    private byte fromAddr = (byte) 3;
+    private byte fromAddr = (byte) 1;
 
 
     public enum TestNumber{
@@ -98,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
                 fromAddr = generateFromAddr();
                 if (fromAddr == (byte) 1) return;
+                else{
+                    mBtHelper.setFromAddress(fromAddr);
+                }
 
                if(!mBtReceiverRegistered){
 
@@ -158,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
                 mBtHelper.startDiscovery();
             }
         });
-
-        mBtHelper.setFromAddress(fromAddr);
     }
 
     private void initializeViews() {
@@ -230,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
     public byte generateFromAddr(){
         try{
             int usn = Integer.parseInt(usnEditText.getText().toString());
-            Log.d("usn",String.valueOf((byte)usn));
+            Log.e("usn",String.valueOf((byte)usn));
             return (byte) usn;
         }
         catch (NumberFormatException e){
