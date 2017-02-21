@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 fromAddr = generateFromAddr();
-                if (fromAddr == (byte) 0) return;
+                if (fromAddr == (byte) 1) return;
 
                if(!mBtReceiverRegistered){
 
@@ -193,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
             case CHANGE_DATA_TEST:
 
                 ChangeDataTest[] changeDataTests = new ChangeDataTest[]{
-                        new ChangeDataTest(2, 15000, mBtHelper),
-                        new ChangeDataTest(2, 12000, mBtHelper)
+                        new ChangeDataTest(5, 15000, mBtHelper),
+                        new ChangeDataTest(5, 12000, mBtHelper)
 //                        new ChangeDataTest(5, 10000, mBtHelper),
 //                        new ChangeDataTest(5, 90000, mBtHelper)
                 };
@@ -230,14 +230,14 @@ public class MainActivity extends AppCompatActivity {
     public byte generateFromAddr(){
         try{
             int usn = Integer.parseInt(usnEditText.getText().toString());
-
+            Log.d("usn",String.valueOf((byte)usn));
             return (byte) usn;
         }
         catch (NumberFormatException e){
             Toast.makeText(MainActivity.this, "Illegal Format. Please enter a valid USN.",
                     Toast.LENGTH_LONG).show();
 
-            return (byte) 0;
+            return (byte) 1;
         }
     }
 

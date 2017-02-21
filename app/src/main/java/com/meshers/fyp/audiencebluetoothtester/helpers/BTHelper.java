@@ -54,7 +54,6 @@ public class BTHelper {
             if (!BluetoothDevice.ACTION_FOUND.equals(action)) return;
             // Get the BluetoothDevice object from the Intent
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            Log.e("here", device.getName());
 
             if (!LinkLayerPdu.isValidPdu(device.getName())) return;
             try {
