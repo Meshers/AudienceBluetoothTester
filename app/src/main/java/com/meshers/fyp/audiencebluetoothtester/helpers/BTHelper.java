@@ -15,6 +15,7 @@ import com.meshers.fyp.audiencebluetoothtester.adapters.CustomBluetoothAdapter;
 import com.meshers.fyp.audiencebluetoothtester.interfaces.DeviceDiscoveryHandler;
 import com.meshers.fyp.audiencebluetoothtester.model.LinkLayerPdu;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 

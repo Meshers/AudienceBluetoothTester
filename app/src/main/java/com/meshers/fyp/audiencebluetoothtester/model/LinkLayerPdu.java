@@ -2,6 +2,7 @@ package com.meshers.fyp.audiencebluetoothtester.model;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
@@ -9,7 +10,7 @@ import java.util.Arrays;
  * Created by sarahcs on 2/19/2017.
  */
 
-public class LinkLayerPdu {
+public class LinkLayerPdu implements Serializable{
 
     private byte fromAddr;
     private byte[] data;

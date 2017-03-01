@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 
 import com.meshers.fyp.audiencebluetoothtester.model.LinkLayerPdu;
 
+import java.io.Serializable;
+
 /**
  * Created by sarahcs on 2/19/2017.
  */

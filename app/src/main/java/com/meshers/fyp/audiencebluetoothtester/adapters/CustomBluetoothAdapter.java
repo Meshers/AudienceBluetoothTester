@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 /**
  * Created by sarahcs on 2/19/2017.
@@ -19,18 +20,18 @@ public class CustomBluetoothAdapter {
 
     private BluetoothAdapter customBluetoothAdapter;
 
-    private Activity activity;
+    private Context context;
 
     private String BTName;
 
-    public CustomBluetoothAdapter(Activity activity) {
+    public CustomBluetoothAdapter(Context context) {
 
-        this.activity = activity;
+        this.context = context;
         this.customBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
     public Context getContext() {
-        return activity;
+        return context;
     }
 
     public boolean isSupported() {
@@ -42,7 +43,7 @@ public class CustomBluetoothAdapter {
 
         if (!customBluetoothAdapter.isEnabled()) {
             Intent turnOnIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            activity.startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
+//            activity.startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
 
             return true;
         } else {
@@ -55,7 +56,7 @@ public class CustomBluetoothAdapter {
         BTName = name;
         if (!customBluetoothAdapter.isEnabled()) {
             Intent turnOnIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            activity.startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
+//            activity.startActivityForResult(turnOnIntent, REQUEST_ENABLE_BT);
         } else {
 //            if (customBluetoothAdapter.getScanMode() !=
 //                    BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
@@ -93,15 +94,6 @@ public class CustomBluetoothAdapter {
 
     public boolean off() {
         return customBluetoothAdapter.disable();
-    }
-
-    public String activityResult(int requestCode, int resultCode) {
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
-            setName(BTName);
-        } else if (resultCode == REQUEST_ENABLE_BT) {
-            Toast.makeText(activity, "Bluetooth failed to be enabled", Toast.LENGTH_LONG).show();
-        }
-        return null;
     }
 
 

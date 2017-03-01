@@ -1,16 +1,24 @@
 package com.meshers.fyp.audiencebluetoothtester;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,6 +28,7 @@ import com.meshers.fyp.audiencebluetoothtester.adapters.CustomBluetoothAdapter;
 import com.meshers.fyp.audiencebluetoothtester.helpers.BTHelper;
 import com.meshers.fyp.audiencebluetoothtester.interfaces.DeviceDiscoveryHandler;
 import com.meshers.fyp.audiencebluetoothtester.model.LinkLayerPdu;
+import com.meshers.fyp.audiencebluetoothtester.services.TestManagerIntentService;
 import com.meshers.fyp.audiencebluetoothtester.tests.AckTest;
 import com.meshers.fyp.audiencebluetoothtester.tests.ChangeDataTest;
 import com.meshers.fyp.audiencebluetoothtester.tests.LengthTest;
@@ -42,13 +51,14 @@ import static java.lang.Thread.sleep;
 public class MainActivity extends AppCompatActivity {
 
 
-    private BTHelper mBtHelper;
+    public static BTHelper mBtHelper;
     private boolean mBtReceiverRegistered = false;
 
     private Button startTestButton;
     private TextView testOneResults;
     private TextView testTwoResults;
     private TextView testThreeResults;
+    private TextView testCount;
     private EditText usnEditText;
 
     //Device specific data
@@ -77,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     TestNumber currentTest;
 
+    private ResponseReceiver receiver;
+
+    String usnStr;
+
     //Test Objects
     private ChangeDataTest changeDataTest;
     private LengthTest lengthTest;
@@ -89,7 +103,45 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        receiver = new ResponseReceiver();
+        registerReceiver(receiver, filter);
+
         initializeViews();
+
+        usnEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    Log.i("STATUS","Enter pressed");
+
+                    startTestButton.performClick();
+                }
+                return false;
+            }
+        });
+
+        usnEditText.addTextChangedListener(new TextWatcher() {
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            public void afterTextChanged(Editable s) {
+
+                for(int i = s.length(); i > 0; i--) {
+
+                    if(s.subSequence(i-1, i).toString().equals("\n"))
+                        s.replace(i-1, i, "");
+                }
+
+                usnStr = s.toString();
+            }
+        });
 
 
         startTestButton.setOnClickListener(new View.OnClickListener() {
@@ -111,20 +163,11 @@ public class MainActivity extends AppCompatActivity {
                    startTestButton.setClickable(false);
                    startTestButton.setEnabled(false);
 
-                   //comment: testing mode
-//                   BitSet set = new BitSet(5);
-//                   set.set(4);
-//                   mBtHelper.startSendingData(set.toString());
-
-                   // conduct the length test
-                   Log.e("TEST 1", "starting");
-                   conductTest(LENGTH_TEST, null);
-                    Log.e("TEST 1", "completed");
-                   //conduct the data change test
-                   Log.e("TEST 2", "starting");
-                   conductTest(CHANGE_DATA_TEST, null);
-                   Log.e("TEST 2", "completed");
-
+                   testCount.setText(String.valueOf(currentTest.getTestNumber()));
+                   Intent test1Intent = new Intent(MainActivity.this, TestManagerIntentService.class);
+                   test1Intent.putExtra("fromAddr", fromAddr);
+                   test1Intent.putExtra("current_test", TestNumber.LENGTH_TEST);
+                   startService(test1Intent);
 
                }
 
@@ -144,7 +187,12 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 
                     if(currentTest == TestNumber.ACK_TEST){
-                        conductTest(ACK_TEST, receivedPacket);
+//                         create test for intent
+                        Intent test1Intent = new Intent(MainActivity.this, TestManagerIntentService.class);
+                        test1Intent.putExtra("fromAddr", fromAddr);
+                        test1Intent.putExtra("pdu", receivedPacket);
+                        test1Intent.putExtra("current_test", TestNumber.ACK_TEST);
+                        startService(test1Intent);
                     }
 
                 }
@@ -170,67 +218,14 @@ public class MainActivity extends AppCompatActivity {
         testTwoResults =(TextView) findViewById(R.id.test_two_results);
         testThreeResults =(TextView) findViewById(R.id.test_three_results);
         usnEditText = (EditText) findViewById(R.id.usn);
+        testCount = (TextView) findViewById(R.id.test_count);
         currentTest = TestNumber.LENGTH_TEST;
     }
 
-    public void conductTest(TestNumber testNumber, LinkLayerPdu pdu){
-
-
-        switch(testNumber){
-            case LENGTH_TEST:
-
-                lengthTest = new LengthTest(250, mBtHelper);
-                lengthTest.executeTest();
-                while(!lengthTest.checkStatus()){
-                    Log.e("WITHIN WHILE LOOP", "TEST 1");
-                }
-
-                testOneResults.setText(lengthTest.getResult());
-
-                currentTest = TestNumber.CHANGE_DATA_TEST;
-
-                break;
-
-            case CHANGE_DATA_TEST:
-
-                ChangeDataTest[] changeDataTests = new ChangeDataTest[]{
-                        new ChangeDataTest(5, 15000, mBtHelper),
-                        new ChangeDataTest(5, 12000, mBtHelper)
-//                        new ChangeDataTest(5, 10000, mBtHelper),
-//                        new ChangeDataTest(5, 90000, mBtHelper)
-                };
-
-                testTwoResults.setText("");
-                for(ChangeDataTest changeDataSet: changeDataTests){
-                    Log.e("LOOP", "TEST 2");
-                    changeDataSet.executeTest();
-                    while(!changeDataSet.checkStatus());
-                    testTwoResults.setText(testTwoResults.getText() + "\n" + changeDataSet.getResults());
-                }
-
-                currentTest = TestNumber.ACK_TEST;
-
-                break;
-            case ACK_TEST:
-
-                Log.e("ENTER", "ACK TEST");
-                ackTest = new AckTest(fromAddr, mBtHelper);
-                ackTest.executeTest(pdu);
-                testThreeResults.setText(ackTest.getResult());
-
-                currentTest = TestNumber.NO_TEST;
-                startTestButton.setEnabled(true);
-
-                break;
-            default:
-                throw new IllegalArgumentException("No such test number exists");
-        }
-
-    }
 
     public byte generateFromAddr(){
         try{
-            int usn = Integer.parseInt(usnEditText.getText().toString());
+            int usn = Integer.parseInt(usnStr);
             Log.e("usn",String.valueOf((byte)usn));
             return (byte) usn;
         }
@@ -262,5 +257,55 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public class ResponseReceiver extends BroadcastReceiver {
+        public static final String ACTION_RESP =
+                "com.meshers.fyp.audienceBluetoothTester";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+           try{
+               TestNumber completedTest;
+               if(intent!=null && intent.getExtras()!=null){
+
+                   completedTest = (TestNumber) intent.getSerializableExtra("completed_test");
+
+                   switch(completedTest){
+                       case LENGTH_TEST:
+                           Log.i("STATUS", "Within broadcast receiver of Test 1");
+                           testOneResults.setText(intent.getExtras().getString("result"));
+                           currentTest = TestNumber.CHANGE_DATA_TEST;
+
+                           testCount.setText(String.valueOf(currentTest.getTestNumber()));
+                           Intent test2Intent = new Intent(MainActivity.this, TestManagerIntentService.class);
+                           test2Intent.putExtra("fromAddr", fromAddr);
+                           test2Intent.putExtra("current_test", TestNumber.CHANGE_DATA_TEST);
+                           startService(test2Intent);
+
+                           break;
+                       case CHANGE_DATA_TEST:
+                           Log.i("STATUS", "Within broadcast receiver of Test 2");
+                           testTwoResults.setText(intent.getExtras().getString("result"));
+                           currentTest = TestNumber.ACK_TEST;
+
+                           testCount.setText(String.valueOf(currentTest.getTestNumber()));
+                           break;
+                       case ACK_TEST:
+                           testThreeResults.setText(intent.getExtras().getString("result"));
+                           currentTest = TestNumber.NO_TEST;
+
+                           testCount.setText(String.valueOf("DONE"));
+                           break;
+                       default:
+                           throw new IllegalArgumentException("no such test exists");
+                   }
+               }
+           }
+           catch(IllegalArgumentException e){
+               Log.e("IAE", "Attempt to access undefined test", e);
+           }
+        }
     }
 }

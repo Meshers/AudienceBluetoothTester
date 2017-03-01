@@ -72,7 +72,7 @@ public class LengthTest {
             return description;
         }
         else{
-            description = "TEST 1: ERROR - Name set to " + data.length + "characters.";
+            description = "TEST 1: ERROR - Name set to " + data.length + " characters.";
             return description;
         }
     }

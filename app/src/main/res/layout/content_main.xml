@@ -14,19 +14,43 @@
     tools:context="com.meshers.fyp.audiencebluetoothtester.MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:text="Current Test Being Conducted" />
+
+    <TextView
+        android:id="@+id/test_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:text="0"
+        android:layout_marginBottom="15dp"
+        android:textSize="60dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" Enter in your USN:"/>
+            android:text="Enter your Head Count Number:"/>
 
         <EditText
             android:id="@+id/usn"
+            android:maxLines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
